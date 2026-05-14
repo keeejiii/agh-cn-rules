@@ -42,8 +42,6 @@ jobs:
           }
 
           download "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list" "cn.list"
-          download "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/google-cn.list" "google-cn.list"
-          download "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/microsoft@cn.list" "microsoft-cn.list"
           download "https://static-file-global.353355.xyz/rules/cn-additional-list.txt" "cn-additional-list.txt"
 
       - name: Run conversion script

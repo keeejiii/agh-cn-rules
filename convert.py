@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 
 CN_LIST_FILE = 'cn.list'
-GOOGLE_CN_LIST_FILE = 'google-cn.list'
-MICROSOFT_CN_LIST_FILE = 'microsoft-cn.list'
 ADDITIONAL_LIST_FILE = 'cn-additional-list.txt'
 
 HTML_LIKE_PREFIXES = (
@@ -16,8 +14,6 @@ HTML_LIKE_PREFIXES = (
 
 MIN_RULE_COUNTS = {
     CN_LIST_FILE: 1000,
-    GOOGLE_CN_LIST_FILE: 10,
-    MICROSOFT_CN_LIST_FILE: 10,
     ADDITIONAL_LIST_FILE: 1,
 }
 
@@ -63,81 +59,30 @@ def load_rules(rule_file, *, min_rules=0):
     return exact_domains, suffix_domains
 
 
-def suffix_matches_domain(suffix_domain, domain):
-    return domain == suffix_domain or domain.endswith(f'.{suffix_domain}')
+def merge_domains(cn_exact, cn_suffix, additional_exact, additional_suffix):
+    """Merge cn.list domains with additional rules, deduplicating by domain name."""
+    seen = set()
+    domains = []
+    has_cn_catchall = 'cn' in cn_suffix
 
-
-def rules_overlap(rule, other_rule):
-    rule_type, domain = rule
-    other_type, other_domain = other_rule
-
-    if rule_type == 'exact' and other_type == 'exact':
-        return domain == other_domain
-
-    if rule_type == 'exact' and other_type == 'suffix':
-        return suffix_matches_domain(other_domain, domain)
-
-    if rule_type == 'suffix' and other_type == 'exact':
-        return suffix_matches_domain(domain, other_domain)
-
-    return (
-        suffix_matches_domain(domain, other_domain)
-        or suffix_matches_domain(other_domain, domain)
-    )
-
-
-def filter_cn_rules(cn_exact_domains, cn_suffix_domains, excluded_rules):
-    filtered_domains = []
-    removed_count = 0
-    has_cn_catchall = 'cn' in cn_suffix_domains
-
-    for domain in sorted(cn_exact_domains):
-        if has_cn_catchall and suffix_matches_domain('cn', domain):
-            continue
-
-        rule = ('exact', domain)
-        if any(rules_overlap(rule, excluded_rule) for excluded_rule in excluded_rules):
-            removed_count += 1
-            continue
-        filtered_domains.append(domain)
-
-    for domain in sorted(cn_suffix_domains):
+    for domain in sorted(cn_exact | cn_suffix):
         if domain == 'cn':
             continue
+        if domain not in seen:
+            seen.add(domain)
+            domains.append(domain)
 
-        if has_cn_catchall and suffix_matches_domain('cn', domain):
-            continue
-
-        rule = ('suffix', domain)
-        if any(rules_overlap(rule, excluded_rule) for excluded_rule in excluded_rules):
-            removed_count += 1
-            continue
-        filtered_domains.append(domain)
-
-    return filtered_domains, removed_count, has_cn_catchall
-
-
-def merge_additional_rules(domains, additional_exact_domains, additional_suffix_domains, has_cn_catchall):
-    merged_domains = list(domains)
-    existing_domains = set(domains)
     added_count = 0
-    skipped_cn_count = 0
-    skipped_duplicate_count = 0
-
-    for domain in sorted(additional_exact_domains | additional_suffix_domains):
-        if has_cn_catchall and suffix_matches_domain('cn', domain):
-            skipped_cn_count += 1
+    skipped_duplicate = 0
+    for domain in sorted(additional_exact | additional_suffix):
+        if domain in seen:
+            skipped_duplicate += 1
             continue
-
-        if domain in existing_domains:
-            skipped_duplicate_count += 1
-            continue
-
-        merged_domains.append(domain)
-        existing_domains.add(domain)
+        seen.add(domain)
+        domains.append(domain)
         added_count += 1
 
-    return merged_domains, added_count, skipped_cn_count, skipped_duplicate_count
+    return domains, added_count, skipped_duplicate, has_cn_catchall
 
 
 def write_output(output_file, domains, cn_dns, the_dns, has_cn_catchall):
@@ -159,12 +104,6 @@ def require_cn_dns():
     return value.strip()
 
 
-def count_output_lines(the_dns, has_cn_catchall, domain_count):
-    the_dns_lines = len(the_dns.rstrip('\n').splitlines()) if the_dns else 0
-    catchall_lines = 1 if has_cn_catchall else 0
-    return the_dns_lines + catchall_lines + domain_count
-
-
 def main():
     current_directory = Path.cwd()
     converted_directory = current_directory / 'converted'
@@ -173,39 +112,17 @@ def main():
     cn_dns = require_cn_dns()
     the_dns = os.environ.get('THE_DNS')
 
-    cn_exact_domains, cn_suffix_domains = load_rules(
+    cn_exact, cn_suffix = load_rules(
         current_directory / CN_LIST_FILE,
         min_rules=MIN_RULE_COUNTS[CN_LIST_FILE],
     )
-    google_exact_domains, google_suffix_domains = load_rules(
-        current_directory / GOOGLE_CN_LIST_FILE,
-        min_rules=MIN_RULE_COUNTS[GOOGLE_CN_LIST_FILE],
-    )
-    microsoft_exact_domains, microsoft_suffix_domains = load_rules(
-        current_directory / MICROSOFT_CN_LIST_FILE,
-        min_rules=MIN_RULE_COUNTS[MICROSOFT_CN_LIST_FILE],
-    )
-    additional_exact_domains, additional_suffix_domains = load_rules(
+    additional_exact, additional_suffix = load_rules(
         current_directory / ADDITIONAL_LIST_FILE,
         min_rules=MIN_RULE_COUNTS[ADDITIONAL_LIST_FILE],
     )
 
-    excluded_rules = [
-        *[("exact", domain) for domain in sorted(google_exact_domains | microsoft_exact_domains)],
-        *[("suffix", domain) for domain in sorted(google_suffix_domains | microsoft_suffix_domains)],
-    ]
-
-    filtered_domains, removed_count, has_cn_catchall = filter_cn_rules(
-        cn_exact_domains,
-        cn_suffix_domains,
-        excluded_rules,
-    )
-
-    merged_domains, added_count, skipped_cn_count, skipped_duplicate_count = merge_additional_rules(
-        filtered_domains,
-        additional_exact_domains,
-        additional_suffix_domains,
-        has_cn_catchall,
+    merged_domains, added_count, skipped_duplicate, has_cn_catchall = merge_domains(
+        cn_exact, cn_suffix, additional_exact, additional_suffix,
     )
 
     final_file = converted_directory / 'cn-rules.txt'
@@ -214,17 +131,19 @@ def main():
     if not final_file.is_file() or final_file.stat().st_size == 0:
         raise ValidationError(f'Generated file is empty: {final_file}')
 
-    generated_output_lines = count_output_lines(the_dns, has_cn_catchall, len(merged_domains))
+    cn_total = len(cn_exact) + len(cn_suffix)
+    additional_total = len(additional_exact) + len(additional_suffix)
+    the_dns_lines = len(the_dns.rstrip('\n').splitlines()) if the_dns else 0
+    catchall_lines = 1 if has_cn_catchall else 0
+    output_lines = the_dns_lines + catchall_lines + len(merged_domains)
 
     print(
-        f'CN rules: {len(cn_exact_domains) + len(cn_suffix_domains)}, '
-        f'removed overlaps: {removed_count}, '
-        f'additional rules: {len(additional_exact_domains) + len(additional_suffix_domains)}, '
-        f'additional skipped cn: {skipped_cn_count}, '
-        f'additional skipped duplicates: {skipped_duplicate_count}, '
+        f'CN rules: {cn_total}, '
+        f'additional rules: {additional_total}, '
+        f'additional skipped duplicates: {skipped_duplicate}, '
         f'additional added: {added_count}, '
-        f'generated rules: {len(merged_domains)}, '
-        f'output lines: {generated_output_lines}'
+        f'merged rules: {len(merged_domains)}, '
+        f'output lines: {output_lines}'
     )
 
 
