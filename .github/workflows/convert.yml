@@ -1,0 +1,98 @@
+name: Update DNS Rules
+
+on:
+  schedule:
+    - cron: "0 22 * * *"  # 每天北京时间早上6点左右运行
+  workflow_dispatch:
+
+jobs:
+  build_and_push:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    env:
+      CN_DNS: ${{ vars.CN_DNS }}
+      THE_DNS: ${{ vars.THE_DNS }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Validate required variables
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${CN_DNS:-}" ]; then
+            echo "Error: CN_DNS is not set. Please configure repository variable CN_DNS."
+            exit 1
+          fi
+
+      - name: Download latest data
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          download() {
+            local url="$1"
+            local output="$2"
+            curl --fail --show-error --silent --location \
+              --retry 3 \
+              --retry-delay 2 \
+              --connect-timeout 20 \
+              --max-time 300 \
+              "$url" \
+              --output "$output"
+          }
+
+          download "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list" "cn.list"
+          download "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/google-cn.list" "google-cn.list"
+          download "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/microsoft@cn.list" "microsoft-cn.list"
+          download "https://static-file-global.353355.xyz/rules/cn-additional-list.txt" "cn-additional-list.txt"
+
+      - name: Run conversion script
+        shell: bash
+        run: |
+          set -euo pipefail
+          python convert.py | tee conversion-summary.txt
+
+      - name: Add workflow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## DNS rule update summary"
+            echo
+            if [ -f conversion-summary.txt ]; then
+              echo '```text'
+              cat conversion-summary.txt
+              echo '```'
+            else
+              echo "Conversion summary was not generated."
+            fi
+            echo
+            if [ -f converted/FAK-DNS.txt ]; then
+              echo "- Output file: converted/FAK-DNS.txt"
+              echo "- Output bytes: $(wc -c < converted/FAK-DNS.txt)"
+              echo "- Output lines: $(wc -l < converted/FAK-DNS.txt)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and Push changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "converted/FAK-DNS.txt" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add converted/FAK-DNS.txt
+            git commit -m "Auto-update DNS rules" -a || exit 0
+            git push
+          else
+            echo "Error: FAK-DNS.txt was not generated."
+            exit 1
+          fi
