@@ -1,66 +1,110 @@
 # agh-cn-rules
 
-自动生成 AdGuard Home `upstream_dns_file` 规则，将中国域名分流到国内 DNS。
+[![Generate DNS Rules](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml/badge.svg)](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-## 做了什么
+用于 AdGuard Home `upstream_dns_file` 的中国域名分流规则集。
 
-1. 下载 `cn.list` 和补充规则列表
-2. 两个规则集去重合并
-3. 输出为 AdGuard Home 可用的 `cn-rules.txt`
-4. 每天 UTC 22:00（北京时间次日 06:00）定时自动更新
+默认提供可直接使用的 `converted/cn-rules.txt`：
 
-## 规则来源
+- 默认国内 DNS：`https://dns.alidns.com/dns-query`
+- 默认兜底 DNS：`https://cloudflare-dns.com/dns-query`
+- 每天北京时间 **06:15** 左右自动更新
 
-- `cn.list`  
-  https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list
-- 补充规则  
-  https://static-file-global.353355.xyz/rules/cn-additional-list.txt
+## 直接使用
 
-## 规则格式
+### 1. 下载规则文件
 
-```text
-# 精确匹配
-example.com
-# 后缀匹配
-+.example.com
+```bash
+mkdir -p /opt/AdGuardHome
+curl -L https://raw.githubusercontent.com/keeejiii/agh-cn-rules/master/converted/cn-rules.txt -o /opt/AdGuardHome/cn-rules.txt
 ```
 
-## 处理逻辑
+直链：<https://raw.githubusercontent.com/keeejiii/agh-cn-rules/master/converted/cn-rules.txt>
 
-- 从 `cn.list` 和补充规则列表中提取域名
-- 两个规则集去重后合并
-- 输出为 AdGuard Home 分流规则格式：`[/domain/]DNS_SERVER`
-- 输出文件第一行可包含默认 DNS（`THE_DNS`），其余域名命中后使用 `CN_DNS`
+### 2. 修改 AdGuard Home 配置
 
-## 配置
-
-在仓库 **Settings → Secrets and variables → Actions → Variables** 中设置：
-
-| 变量 | 说明 | 必填 |
-|------|------|------|
-| `CN_DNS` | 中国域名使用的 DNS 上游 | 可选（默认阿里 DoH） |
-| `THE_DNS` | 默认 DNS 上游（写在整个文件第一行） | 可选（默认 Cloudflare DoH） |
-
-如果不设置，默认使用：
-- `CN_DNS`: `https://dns.alidns.com/dns-query`
-- `THE_DNS`: `https://cloudflare-dns.com/dns-query`
-
-## AdGuard Home 配置
-
-将生成的 `converted/cn-rules.txt` 放到本机，在 `AdGuardHome.yaml` 中配置：
+编辑 `AdGuardHome.yaml`，在 `dns:` 下添加：
 
 ```yaml
 dns:
   upstream_dns_file: /opt/AdGuardHome/cn-rules.txt
 ```
 
-## 加固说明
+> 说明：这个配置项不在“网页上点一下就能替代”的范围里，核心是让 AdGuard Home 最终从 `AdGuardHome.yaml` 读取到这份文件。
 
-- 下载使用 `curl --fail --location --retry`，抵抗临时网络波动
-- 输入校验：文件必须存在、非空、非 HTML/错误页、规则数不低于阈值
-- `CN_DNS` 必填校验，避免生成残缺结果
-- GitHub Actions Summary 输出转换统计，方便巡检
+### 3. 重启 AdGuard Home
 
-## License
+```bash
+systemctl restart AdGuardHome
+```
 
-WTFPL
+如果你不是用 systemd 安装，请改成自己的重启方式。
+
+## 自定义生成
+
+如果你想换成自己的国内 DNS / 默认 DNS，可以 fork 本仓库后用 GitHub Actions 生成。
+
+### 添加变量
+
+仓库页面进入：
+
+**Settings → Secrets and variables → Actions → Variables**
+
+新增这两个变量（都可选，不填就用默认值）：
+
+| 变量名 | 作用 | 示例值 |
+|------|------|------|
+| `CN_DNS` | 中国域名命中后使用的 DNS 上游 | `https://dns.alidns.com/dns-query` |
+| `THE_DNS` | 默认 DNS 上游，写在规则文件第一行 | `https://cloudflare-dns.com/dns-query` |
+
+### 手动触发生成
+
+仓库页面进入：
+
+**Actions → Generate DNS Rules → Run workflow**
+
+工作流会自动：
+
+1. 下载 `cn.list`
+2. 下载 `cn-additional-list.txt`
+3. 去重合并
+4. 生成并更新 `converted/cn-rules.txt`
+
+## 规则逻辑
+
+输出文件格式示例：
+
+```text
+https://cloudflare-dns.com/dns-query
+[/cn/]https://dns.alidns.com/dns-query
+[/example.com/]https://dns.alidns.com/dns-query
+```
+
+含义：
+
+- 第一行是默认 DNS（`THE_DNS`）
+- `[/cn/]` 作为 `.cn` 兜底规则
+- 其余中国域名逐条写入分流规则
+- 已存在 `[/cn/]` 时，不再重复写入 `.cn` 子域名规则
+
+## 规则来源
+
+- `cn.list`  
+  <https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list>
+- `cn-additional-list.txt`  
+  <https://static-file-global.353355.xyz/rules/cn-additional-list.txt>
+
+## 第三方声明
+
+本项目代码采用 MIT License。
+
+规则生成涉及第三方规则数据以及不同许可证来源。重新分发前，请自行审查上游许可证与使用条件。
+
+详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+
+## 致谢
+
+- [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)
+- [Leev1s/FAK-DNS](https://github.com/Leev1s/FAK-DNS)
+- NodeSeek 用户 `fastoo` 分享的 ICP 备案域名列表
