@@ -24,27 +24,16 @@ curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rul
 
 ### 2. 配置定时拉取（cron 示例）
 
-如果你想每天自动同步最新规则，可以这样做。
-
-先创建更新脚本：
+如果你想每天自动同步最新规则，可以直接用下面这个脚本。
 
 ```bash
 cat >/usr/local/bin/update-agh-cn-rules.sh <<'EOF'
 #!/bin/sh
-URL="https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt"
-DEST="/opt/AdGuardHome/cn-rules.txt"
-TMP="/tmp/cn-rules.txt"
-
-curl -L "$URL" -o "$TMP" || exit 1
-
-if ! cmp -s "$TMP" "$DEST"; then
-  mv "$TMP" "$DEST"
-  systemctl restart AdGuardHome
-else
-  rm -f "$TMP"
-fi
+curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt -o /tmp/cn-rules.txt.new || exit 1
+cmp -s /tmp/cn-rules.txt.new /opt/AdGuardHome/cn-rules.txt && rm -f /tmp/cn-rules.txt.new && exit 0
+mv /tmp/cn-rules.txt.new /opt/AdGuardHome/cn-rules.txt
+systemctl restart AdGuardHome
 EOF
-
 chmod +x /usr/local/bin/update-agh-cn-rules.sh
 ```
 
@@ -54,7 +43,10 @@ chmod +x /usr/local/bin/update-agh-cn-rules.sh
 (crontab -l 2>/dev/null; echo '30 6 * * * /usr/local/bin/update-agh-cn-rules.sh >/dev/null 2>&1') | crontab -
 ```
 
-如果你不是用 systemd 安装 AdGuard Home，请把脚本里的重启命令改成你自己的方式。
+这段逻辑就是：
+- 每天自动拉取
+- 文件没变就直接退出
+- 文件变了才覆盖并重启 AdGuard Home
 
 ### 3. 修改 AdGuard Home 配置
 
