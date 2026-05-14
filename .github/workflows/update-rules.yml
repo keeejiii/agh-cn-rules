@@ -123,11 +123,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: agh-cn-rules
+          name: AdGuard Home China DNS Rules
           body: |
-            Auto-generated AdGuard Home DNS split-routing rules.
+            Auto-generated China DNS rules for AdGuard Home.
 
             - File: `cn-rules.txt`
+            - Download: `https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt`
             - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
           files: converted/cn-rules.txt
           overwrite_files: true

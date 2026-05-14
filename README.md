@@ -1,4 +1,4 @@
-# agh-cn-rules
+# AdGuard Home China DNS Rules
 
 [![Generate DNS Rules](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml/badge.svg)](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
@@ -22,7 +22,46 @@ curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rul
 
 直链：<https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt>
 
-### 2. 修改 AdGuard Home 配置
+### 2. 配置定时拉取（cron 示例）
+
+如果你想每天自动同步最新规则，可以这样做。
+
+先创建更新脚本：
+
+```bash
+cat >/usr/local/bin/update-agh-cn-rules.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+URL="https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt"
+DEST="/opt/AdGuardHome/cn-rules.txt"
+TMP="$(mktemp)"
+
+cleanup() {
+  rm -f "$TMP"
+}
+trap cleanup EXIT
+
+curl -L "$URL" -o "$TMP"
+
+if [ ! -f "$DEST" ] || ! cmp -s "$TMP" "$DEST"; then
+  install -m 0644 "$TMP" "$DEST"
+  systemctl restart AdGuardHome
+fi
+EOF
+
+chmod +x /usr/local/bin/update-agh-cn-rules.sh
+```
+
+再加一个 cron 任务。建议放在 **06:30** 左右跑，略晚于本项目默认更新时间：
+
+```bash
+(crontab -l 2>/dev/null; echo '30 6 * * * /usr/local/bin/update-agh-cn-rules.sh >/dev/null 2>&1') | crontab -
+```
+
+如果你不是用 systemd 安装 AdGuard Home，请把脚本里的重启命令改成你自己的方式。
+
+### 3. 修改 AdGuard Home 配置
 
 编辑 `AdGuardHome.yaml`，在 `dns:` 下添加：
 
@@ -33,13 +72,13 @@ dns:
 
 > 说明：核心是让 AdGuard Home 最终从 `AdGuardHome.yaml` 读取到这份文件。
 
-### 3. 重启 AdGuard Home
+### 4. 重启 AdGuard Home
 
 ```bash
 systemctl restart AdGuardHome
 ```
 
-如果你不是用 systemd 安装，请改成自己的重启方式。
+如果你已经按上面的脚本 + cron 配好，后续有规则变化时会自动重启并应用。
 
 ## 自定义生成
 
