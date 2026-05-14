@@ -11,8 +11,8 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     env:
-      CN_DNS: ${{ vars.CN_DNS }}
-      THE_DNS: ${{ vars.THE_DNS }}
+      CN_DNS: ${{ vars.CN_DNS || 'https://dns.alidns.com/dns-query' }}
+      THE_DNS: ${{ vars.THE_DNS || 'https://cloudflare-dns.com/dns-query' }}
 
     steps:
       - name: Checkout code
@@ -23,14 +23,6 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Validate required variables
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -z "${CN_DNS:-}" ]; then
-            echo "Error: CN_DNS is not set. Please configure repository variable CN_DNS."
-            exit 1
-          fi
 
       - name: Download latest data
         shell: bash
