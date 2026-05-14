@@ -106,7 +106,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Latest DNS Rules
+          name: agh-cn-rules
           body: |
             Auto-generated AdGuard Home DNS split-routing rules.
 
