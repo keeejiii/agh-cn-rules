@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python convert.py | tee conversion-summary.txt
+          python convert.py | tee update-summary.txt
 
       - name: Add workflow summary
         if: always()
@@ -67,18 +67,18 @@ jobs:
           {
             echo "## DNS rule update summary"
             echo
-            if [ -f conversion-summary.txt ]; then
+            if [ -f update-summary.txt ]; then
               echo '```text'
-              cat conversion-summary.txt
+              cat update-summary.txt
               echo '```'
             else
               echo "Conversion summary was not generated."
             fi
             echo
-            if [ -f converted/FAK-DNS.txt ]; then
-              echo "- Output file: converted/FAK-DNS.txt"
-              echo "- Output bytes: $(wc -c < converted/FAK-DNS.txt)"
-              echo "- Output lines: $(wc -l < converted/FAK-DNS.txt)"
+            if [ -f converted/cn-rules.txt ]; then
+              echo "- Output file: converted/cn-rules.txt"
+              echo "- Output bytes: $(wc -c < converted/cn-rules.txt)"
+              echo "- Output lines: $(wc -l < converted/cn-rules.txt)"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -86,13 +86,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f "converted/FAK-DNS.txt" ]; then
+          if [ -f "converted/cn-rules.txt" ]; then
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git add converted/FAK-DNS.txt
+            git add converted/cn-rules.txt
             git commit -m "Auto-update DNS rules" -a || exit 0
             git push
           else
-            echo "Error: FAK-DNS.txt was not generated."
+            echo "Error: cn-rules.txt was not generated."
             exit 1
           fi

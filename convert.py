@@ -208,7 +208,7 @@ def main():
         has_cn_catchall,
     )
 
-    final_file = converted_directory / 'FAK-DNS.txt'
+    final_file = converted_directory / 'cn-rules.txt'
     write_output(final_file, merged_domains, cn_dns, the_dns, has_cn_catchall)
 
     if not final_file.is_file() or final_file.stat().st_size == 0:

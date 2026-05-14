@@ -1,4 +1,4 @@
-# FAK-DNS for AdGuard Home
+# agh-cn-rules
 
 自动生成 AdGuard Home `upstream_dns_file` 规则，将中国域名分流到国内 DNS。
 
@@ -7,7 +7,7 @@
 1. 下载 `cn.list`、`google-cn.list`、`microsoft@cn.list`、补充规则列表
 2. 从 `cn.list` 中剔除与 Google / Microsoft 中国直连规则重叠的域名
 3. 合并补充规则
-4. 输出为 AdGuard Home 可用的 `FAK-DNS.txt`
+4. 输出为 AdGuard Home 可用的 `cn-rules.txt`
 5. 每天 UTC 22:00（北京时间次日 06:00）定时自动更新
 
 ## 规则来源
@@ -54,11 +54,11 @@ THE_DNS: https://cloudflare-dns.com/dns-query
 
 ## AdGuard Home 配置
 
-将生成的 `converted/FAK-DNS.txt` 放到本机，在 `AdGuardHome.yaml` 中配置：
+将生成的 `converted/cn-rules.txt` 放到本机，在 `AdGuardHome.yaml` 中配置：
 
 ```yaml
 dns:
-  upstream_dns_file: /opt/AdGuardHome/FAK-DNS.txt
+  upstream_dns_file: /opt/AdGuardHome/cn-rules.txt
 ```
 
 ## 加固说明
