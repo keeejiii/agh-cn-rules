@@ -118,18 +118,35 @@ jobs:
           git tag -f latest
           git push -f origin refs/tags/latest
 
+      - name: Generate release notes
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          cat > release-notes.md <<EOF
+          Auto-generated China DNS rules for AdGuard Home.
+
+          - File: `cn-rules.txt`
+          - Download: `https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt`
+          - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
+
+          Current upstreams:
+
+          ```text
+          CN_DNS:
+          $CN_DNS
+
+          THE_DNS:
+          $THE_DNS
+          ```
+          EOF
+
       - name: Publish latest release
         if: steps.changes.outputs.changed == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: AdGuard Home China DNS Rules
-          body: |
-            Auto-generated China DNS rules for AdGuard Home.
-
-            - File: `cn-rules.txt`
-            - Download: `https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt`
-            - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
+          body_path: release-notes.md
           files: converted/cn-rules.txt
           overwrite_files: true
           make_latest: true
