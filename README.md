@@ -24,9 +24,8 @@ curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rul
 
 ### 2. 配置定时拉取（cron 示例）
 
-如果你想每天自动同步最新规则，可以直接用下面这个脚本。
-
 ```bash
+
 cat >/usr/local/bin/update-agh-cn-rules.sh <<'EOF'
 #!/bin/sh
 curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt -o /tmp/cn-rules.txt.new || exit 1
@@ -35,22 +34,16 @@ mv /tmp/cn-rules.txt.new /opt/AdGuardHome/cn-rules.txt
 systemctl restart AdGuardHome
 EOF
 chmod +x /usr/local/bin/update-agh-cn-rules.sh
-```
-
-再加一个 cron 任务。建议放在 **06:30** 左右跑，略晚于本项目默认更新时间：
-
-```bash
 (crontab -l 2>/dev/null; echo '30 6 * * * /usr/local/bin/update-agh-cn-rules.sh >/dev/null 2>&1') | crontab -
 ```
 
-这段逻辑就是：
-- 每天自动拉取
-- 文件没变就直接退出
-- 文件变了才覆盖并重启 AdGuard Home
+- 每天 06:30 自动拉取
+- 文件没变：不重启
+- 文件变了：覆盖并重启 AdGuard Home
 
 ### 3. 修改 AdGuard Home 配置
 
-编辑 `AdGuardHome.yaml`，在 `dns:` 下添加：
+在 `AdGuardHome.yaml` 里加上：
 
 ```yaml
 dns:
@@ -59,13 +52,11 @@ dns:
 
 > 说明：核心是让 AdGuard Home 最终从 `AdGuardHome.yaml` 读取到这份文件。
 
-### 4. 重启 AdGuard Home
+### 4. 首次手动重启一次
 
 ```bash
 systemctl restart AdGuardHome
 ```
-
-如果你已经按上面的脚本 + cron 配好，后续有规则变化时会自动重启并应用。
 
 ## 自定义生成
 
