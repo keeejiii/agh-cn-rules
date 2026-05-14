@@ -5,7 +5,7 @@
 
 用于 AdGuard Home `upstream_dns_file` 的中国域名分流规则集。
 
-默认提供可直接使用的 `converted/cn-rules.txt`：
+默认通过 **GitHub Releases latest** 提供可直接使用的 `cn-rules.txt`：
 
 - 默认国内 DNS：`https://dns.alidns.com/dns-query`
 - 默认兜底 DNS：`https://cloudflare-dns.com/dns-query`
@@ -17,10 +17,10 @@
 
 ```bash
 mkdir -p /opt/AdGuardHome
-curl -L https://raw.githubusercontent.com/keeejiii/agh-cn-rules/master/converted/cn-rules.txt -o /opt/AdGuardHome/cn-rules.txt
+curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt -o /opt/AdGuardHome/cn-rules.txt
 ```
 
-直链：<https://raw.githubusercontent.com/keeejiii/agh-cn-rules/master/converted/cn-rules.txt>
+直链：<https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt>
 
 ### 2. 修改 AdGuard Home 配置
 
@@ -31,7 +31,7 @@ dns:
   upstream_dns_file: /opt/AdGuardHome/cn-rules.txt
 ```
 
-> 说明：这个配置项不在“网页上点一下就能替代”的范围里，核心是让 AdGuard Home 最终从 `AdGuardHome.yaml` 读取到这份文件。
+> 说明：核心是让 AdGuard Home 最终从 `AdGuardHome.yaml` 读取到这份文件。
 
 ### 3. 重启 AdGuard Home
 
@@ -69,7 +69,8 @@ systemctl restart AdGuardHome
 1. 下载 `cn.list`
 2. 下载 `cn-additional-list.txt`
 3. 去重合并
-4. 生成并更新 `converted/cn-rules.txt`
+4. 生成 `cn-rules.txt`
+5. 仅在规则变化时更新 **latest Release**
 
 ## 规则逻辑
 
