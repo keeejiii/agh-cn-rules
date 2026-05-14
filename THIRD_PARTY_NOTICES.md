@@ -14,7 +14,7 @@
 
 - **仓库**：https://github.com/Leev1s/FAK-DNS
 - **许可证**：
-  - 原始上游代码来自 `felixonmars/dnsmasq-china-list`：WTFPL
+  - 原始上游代码来自 `felixonmars/dnsmasq-china-list`：WTFPL（见 `licenses/WTFPL-dnsmasq-china-list.txt`）
   - Leev1s 的修改与新增：MIT
 - **用途**：参考了其代码逻辑和 AdGuard Home 规则转换/路由方案。
 

@@ -7,7 +7,7 @@
 1. 下载 `cn.list` 和补充规则列表
 2. 两个规则集去重合并
 3. 输出为 AdGuard Home 可用的 `cn-rules.txt`
-4. 支持手动触发生成
+4. 通过 GitHub Actions workflow_dispatch 手动触发生成（仅用于本地验证，不再发布规则文件）
 
 ## 规则来源
 
@@ -45,9 +45,19 @@ example.com
 - `CN_DNS`: `https://dns.alidns.com/dns-query`
 - `THE_DNS`: `https://cloudflare-dns.com/dns-query`
 
-## AdGuard Home 配置
+## 本地生成
 
-将生成的 `converted/cn-rules.txt` 放到本机，在 `AdGuardHome.yaml` 中配置：
+仓库不再提交 `converted/cn-rules.txt`，也不再通过 Release 分发。
+
+如需获取规则文件，请在本仓库路径下运行：
+
+```bash
+CN_DNS="你的国内DNS" THE_DNS="你的默认DNS" python3 convert.py
+```
+
+生成文件位于 `converted/cn-rules.txt`。
+
+将生成文件放到 AdGuard Home 所在机器，在 `AdGuardHome.yaml` 中配置：
 
 ```yaml
 dns:
@@ -58,7 +68,7 @@ dns:
 
 - 下载使用 `curl --fail --location --retry`，抵抗临时网络波动
 - 输入校验：文件必须存在、非空、非 HTML/错误页、规则数不低于阈值
-- `CN_DNS` 必填校验，避免生成残缺结果
+- `CN_DNS` 未设置时使用默认值（阿里 DoH），避免生成残缺结果
 - GitHub Actions Summary 输出转换统计，方便巡检
 
 ## 生成规则
@@ -89,6 +99,15 @@ dns:
 
 详细的第三方声明见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
 
-## License
+## 许可证
 
-WTFPL
+本项目代码采用 MIT License。
+
+需要注意的是，本项目引用、参考或使用的第三方代码与规则数据并不统一适用本项目许可证：
+
+- `Leev1s/FAK-DNS` 的修改与新增部分采用 MIT License；其上游原始代码来自 `felixonmars/dnsmasq-china-list`，采用 WTFPL。
+- `DustinWin/ruleset_geodata` 采用 GPL-3.0。
+- NodeSeek 用户 `fastoo` 分享的 ICP 域名列表未明确许可证；本仓库不提交、不发布其再分发或派生副本。
+- 本地生成的 `converted/cn-rules.txt` 可能包含来自第三方来源的规则数据。重新分发生成文件前，请自行确认并遵守上游许可证或授权条件。
+
+详情见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
