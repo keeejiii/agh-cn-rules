@@ -108,4 +108,4 @@ https://cloudflare-dns.com/dns-query
 
 - [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)
 - [Leev1s/FAK-DNS](https://github.com/Leev1s/FAK-DNS)
-- NodeSeek 用户 `fastoo` 分享的 ICP 备案域名列表
+- [NodeSeek 用户 `fastoo` 分享的 ICP 备案域名列表](https://www.nodeseek.com/post-464238-1)
