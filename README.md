@@ -7,7 +7,7 @@
 1. 下载 `cn.list` 和补充规则列表
 2. 两个规则集去重合并
 3. 输出为 AdGuard Home 可用的 `cn-rules.txt`
-4. 每天 UTC 22:00（北京时间次日 06:00）定时自动更新
+4. 支持手动触发生成
 
 ## 规则来源
 
@@ -61,33 +61,33 @@ dns:
 - `CN_DNS` 必填校验，避免生成残缺结果
 - GitHub Actions Summary 输出转换统计，方便巡检
 
-## Generated Rules
+## 生成规则
 
-The generated rule file `converted/cn-rules.txt` is not committed to this repository.
+生成文件 `converted/cn-rules.txt` 不纳入仓库提交。
 
-This project may generate rules from third-party sources, including GPL-3.0 licensed rule data and third-party lists whose licenses are not explicitly specified. Users should review and comply with the upstream licenses and terms before redistributing generated outputs.
+本项目可能基于第三方来源生成规则，包括 GPL-3.0 许可的规则数据以及未明确许可的第三方列表。用户在再分发生成结果前，应自行审查并遵守上游许可证及条款。
 
-For third-party source details, see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+详见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
 
-## Acknowledgements
+## 致谢
 
-This project uses or references rules, data, and implementation ideas from the following projects and sources:
+本项目使用或参考了以下项目和来源的规则、数据与实现思路：
 
-- [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)
- Used as a source of ruleset/geodata data. Licensed under GPL-3.0.
+- [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)  
+ 作为规则集/地理数据来源。以 GPL-3.0 许可。
 
-- [Leev1s/FAK-DNS](https://github.com/Leev1s/FAK-DNS)
- Used as a reference for AdGuard Home DNS rule conversion and routing logic.
- The project contains code under multiple licenses: upstream code under WTFPL, and modifications/additions by Leev1s under MIT.
+- [Leev1s/FAK-DNS](https://github.com/Leev1s/FAK-DNS)  
+ 作为 AdGuard Home DNS 规则转换与路由逻辑的参考。  
+ 项目包含多许可证代码：上游代码使用 WTFPL，Leev1s 的修改和新增部分使用 MIT。
 
-- NodeSeek post by `fastoo`: 国内主流企业工信部 ICP 备案域名列表
- Used as an additional reference/source for China ICP-based domain rules.
- License: not specified.
- Source: https://www.nodeseek.com/post-464238-1
+- NodeSeek `fastoo` 帖子：国内主流企业工信部 ICP 备案域名列表  
+ 作为中国 ICP 备案域名规则的额外参考/来源。  
+ 许可：未声明。  
+ 来源：https://www.nodeseek.com/post-464238-1
 
-Thanks to the authors and maintainers of these projects, rule sets, and datasets.
+感谢以上项目、规则集和数据集的作者与维护者。
 
-For detailed third-party notices, see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+详细的第三方声明见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
 
 ## License
 

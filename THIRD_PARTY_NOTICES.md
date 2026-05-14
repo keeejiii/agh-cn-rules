@@ -1,50 +1,41 @@
-# Third-Party Notices
+# 第三方声明
 
-This project uses or references the following third-party projects, rule sets, and data sources.
+本项目使用或参考了以下第三方项目、规则集和数据来源。
 
 ## DustinWin/ruleset_geodata
 
-- **Repository**: https://github.com/DustinWin/ruleset_geodata
-- **License**: GPL-3.0
-- **Usage**: Ruleset/geodata source data is used or adapted in this project.
+- **仓库**：https://github.com/DustinWin/ruleset_geodata
+- **许可证**：GPL-3.0
+- **用途**：本项目使用或基于其规则集/地理数据。
 
-If this project redistributes modified or generated files based on `ruleset_geodata`,
-those files are distributed under the terms of GPL-3.0.
+如果本项目重新分发基于 `ruleset_geodata` 修改或生成的文件，这些文件将按照 GPL-3.0 条款分发。
 
 ## Leev1s/FAK-DNS
 
-- **Repository**: https://github.com/Leev1s/FAK-DNS
-- **License**:
-  - Original upstream code from `felixonmars/dnsmasq-china-list`: WTFPL
-  - Modifications and additions by Leev1s: MIT
-- **Usage**: Referenced code logic and rule conversion/routing approach for AdGuard Home.
+- **仓库**：https://github.com/Leev1s/FAK-DNS
+- **许可证**：
+  - 原始上游代码来自 `felixonmars/dnsmasq-china-list`：WTFPL
+  - Leev1s 的修改与新增：MIT
+- **用途**：参考了其代码逻辑和 AdGuard Home 规则转换/路由方案。
 
-Copyright and license notices from the original projects are preserved where applicable.
+原始项目的版权与许可声明在适用范围内予以保留。
 
-## NodeSeek ICP domain list by fastoo
+## fastoo 的 NodeSeek ICP 备案域名列表
 
-- **Source post**: https://www.nodeseek.com/post-464238-1
-- **Data URL**: https://static-file-global.353355.xyz/rules/cn-additional-list.txt
-- **Author**: fastoo
-- **License**: Not specified
-- **Usage**: Used as an additional reference/source for China ICP-based domain rules.
+- **来源帖子**：https://www.nodeseek.com/post-464238-1
+- **数据 URL**：https://static-file-global.353355.xyz/rules/cn-additional-list.txt
+- **作者**：fastoo
+- **许可证**：未声明
+- **用途**：作为中国 ICP 备案域名规则的额外参考/来源。
 
-The original post describes the list as a mainland China ICP filing based domain list,
-covering domains of major mainland Chinese enterprises, internet companies, cloud providers,
-government agencies, universities, research institutions, and app developers.
+原始帖子描述该列表为中国大陆 ICP 备案域名列表，覆盖国内主要企业、互联网公司、云服务商、政府机构、高校、科研院所及应用开发者的域名。
 
-The original post states that the list is not guaranteed to be timely, accurate, or complete,
-and is not recommended for production use.
+原始帖子声明该列表不保证及时性、准确性或完整性，不建议用于生产环境。
 
-Because the upstream list does not specify a license, this repository does not commit
-redistributed or derived copies of the list. Users may fetch or reference the upstream
-list separately and should obtain permission from the author before redistributing
-modified or derived copies.
+由于上游列表未声明许可证，本仓库不提交其再分发或派生副本。用户可自行获取或引用上游列表，在再分发修改或派生副本前应取得作者许可。
 
-## Notes
+## 附注
 
-Public availability does not automatically grant permission to redistribute, modify, or
-sublicense third-party content.
+第三方内容的公开可获取性并不自动构成再分发、修改或再许可的授权。
 
-When third-party rules, data, or code are included directly in this repository, their
-original license terms should be preserved and followed.
+当本仓库直接包含第三方规则、数据或代码时，应保留并遵守其原始许可条款。
