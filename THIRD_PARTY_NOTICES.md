@@ -36,8 +36,10 @@ government agencies, universities, research institutions, and app developers.
 The original post states that the list is not guaranteed to be timely, accurate, or complete,
 and is not recommended for production use.
 
-Unless explicit permission is granted by the author, this project should avoid redistributing
-the original list directly. Users may fetch or reference the upstream list separately.
+Because the upstream list does not specify a license, this repository does not commit
+redistributed or derived copies of the list. Users may fetch or reference the upstream
+list separately and should obtain permission from the author before redistributing
+modified or derived copies.
 
 ## Notes
 

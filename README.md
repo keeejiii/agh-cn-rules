@@ -61,6 +61,14 @@ dns:
 - `CN_DNS` 必填校验，避免生成残缺结果
 - GitHub Actions Summary 输出转换统计，方便巡检
 
+## Generated Rules
+
+The generated rule file `converted/cn-rules.txt` is not committed to this repository.
+
+This project may generate rules from third-party sources, including GPL-3.0 licensed rule data and third-party lists whose licenses are not explicitly specified. Users should review and comply with the upstream licenses and terms before redistributing generated outputs.
+
+For third-party source details, see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+
 ## Acknowledgements
 
 This project uses or references rules, data, and implementation ideas from the following projects and sources:
