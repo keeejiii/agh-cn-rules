@@ -83,6 +83,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and Push changes
+        id: commit
         shell: bash
         run: |
           set -euo pipefail
@@ -90,9 +91,33 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git add converted/cn-rules.txt
-            git commit -m "Auto-update DNS rules" -a || exit 0
-            git push
+            if git commit -m "Auto-update DNS rules" -a; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              git push
+            else
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "Error: cn-rules.txt was not generated."
             exit 1
           fi
+
+      - name: Force update latest tag
+        if: steps.commit.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git tag -f latest
+          git push -f origin latest
+
+      - name: Publish Release
+        if: steps.commit.outputs.changed == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest DNS Rules
+          body: |
+            Auto-generated AdGuard Home DNS split-routing rules.
+
+            - File: `cn-rules.txt`
+            - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
+          files: converted/cn-rules.txt
