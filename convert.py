@@ -82,7 +82,7 @@ def merge_domains(cn_exact, cn_suffix, additional_exact, additional_suffix):
         domains.append(domain)
         added_count += 1
 
-    return domains, added_count, skipped_duplicate, has_cn_catchall
+    return sorted(domains), added_count, skipped_duplicate, has_cn_catchall
 
 
 def write_output(output_file, domains, cn_dns, the_dns, has_cn_catchall):
