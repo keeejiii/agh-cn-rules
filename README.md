@@ -30,23 +30,18 @@ curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rul
 
 ```bash
 cat >/usr/local/bin/update-agh-cn-rules.sh <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
+#!/bin/sh
 URL="https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt"
 DEST="/opt/AdGuardHome/cn-rules.txt"
-TMP="$(mktemp)"
+TMP="/tmp/cn-rules.txt"
 
-cleanup() {
-  rm -f "$TMP"
-}
-trap cleanup EXIT
+curl -L "$URL" -o "$TMP" || exit 1
 
-curl -L "$URL" -o "$TMP"
-
-if [ ! -f "$DEST" ] || ! cmp -s "$TMP" "$DEST"; then
-  install -m 0644 "$TMP" "$DEST"
+if ! cmp -s "$TMP" "$DEST"; then
+  mv "$TMP" "$DEST"
   systemctl restart AdGuardHome
+else
+  rm -f "$TMP"
 fi
 EOF
 
