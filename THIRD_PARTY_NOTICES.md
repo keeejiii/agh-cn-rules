@@ -20,13 +20,13 @@
 
 原始项目的版权与许可声明在适用范围内予以保留。
 
-## fastoo 的 NodeSeek ICP 备案域名列表
+## NodeSeek 用户 fastoo 分享的 ICP 备案域名列表
 
-- **来源帖子**：https://www.nodeseek.com/post-464238-1
-- **数据 URL**：https://static-file-global.353355.xyz/rules/cn-additional-list.txt
+- **来源帖子**：[NodeSeek - fastoo 的 ICP 备案域名列表](https://www.nodeseek.com/post-464238-1)
+- **数据 URL**：<https://static-file-global.353355.xyz/rules/cn-additional-list.txt>
 - **作者**：fastoo
 - **许可证**：未声明
-- **用途**：作为中国 ICP 备案域名规则的额外参考/来源。
+- **用途**：作为中国 ICP 备案域名规则的额外参考来源。
 
 原始帖子描述该列表为中国大陆 ICP 备案域名列表，覆盖国内主要企业、互联网公司、云服务商、政府机构、高校、科研院所及应用开发者的域名。
 
