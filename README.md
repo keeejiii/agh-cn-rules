@@ -61,6 +61,26 @@ dns:
 - `CN_DNS` 必填校验，避免生成残缺结果
 - GitHub Actions Summary 输出转换统计，方便巡检
 
+## Acknowledgements
+
+This project uses or references rules, data, and implementation ideas from the following projects and sources:
+
+- [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)
+ Used as a source of ruleset/geodata data. Licensed under GPL-3.0.
+
+- [Leev1s/FAK-DNS](https://github.com/Leev1s/FAK-DNS)
+ Used as a reference for AdGuard Home DNS rule conversion and routing logic.
+ The project contains code under multiple licenses: upstream code under WTFPL, and modifications/additions by Leev1s under MIT.
+
+- NodeSeek post by `fastoo`: 国内主流企业工信部 ICP 备案域名列表
+ Used as an additional reference/source for China ICP-based domain rules.
+ License: not specified.
+ Source: https://www.nodeseek.com/post-464238-1
+
+Thanks to the authors and maintainers of these projects, rule sets, and datasets.
+
+For detailed third-party notices, see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
+
 ## License
 
 WTFPL
