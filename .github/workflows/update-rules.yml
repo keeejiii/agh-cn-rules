@@ -1,14 +1,12 @@
-name: Update DNS Rules
+name: Generate DNS Rules
 
 on:
-  schedule:
-    - cron: "0 22 * * *"  # 每天北京时间早上6点左右运行
   workflow_dispatch:
 
 jobs:
-  build_and_push:
+  build_and_verify:
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-latest
     env:
       CN_DNS: ${{ vars.CN_DNS || 'https://dns.alidns.com/dns-query' }}
@@ -22,7 +20,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
-
 
       - name: Download latest data
         shell: bash
@@ -55,7 +52,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "## DNS rule update summary"
+            echo "## DNS rule generation summary"
             echo
             if [ -f update-summary.txt ]; then
               echo '```text'
@@ -72,42 +69,10 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Commit and Push changes
-        id: commit
+      - name: Validate generated rules
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f "converted/cn-rules.txt" ]; then
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add -f converted/cn-rules.txt
-            if git commit -m "Auto-update DNS rules" -a; then
-              echo "changed=true" >> "$GITHUB_OUTPUT"
-              git push
-            else
-              echo "changed=false" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "Error: cn-rules.txt was not generated."
-            exit 1
-          fi
-
-      - name: Force update latest tag
-        if: steps.commit.outputs.changed == 'true'
-        shell: bash
-        run: |
-          git tag -f latest
-          git push -f origin latest
-
-      - name: Publish Release
-        if: steps.commit.outputs.changed == 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest
-          name: agh-cn-rules
-          body: |
-            Auto-generated AdGuard Home DNS split-routing rules.
-
-            - File: `cn-rules.txt`
-            - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
-          files: converted/cn-rules.txt
+          test -s converted/cn-rules.txt
+          echo "Generated rules file exists locally and is non-empty."
+          wc -l converted/cn-rules.txt
