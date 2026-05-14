@@ -7,9 +7,16 @@
 
 默认通过 **GitHub Releases latest** 提供可直接使用的 `cn-rules.txt`：
 
-- 默认国内 DNS：`https://dns.alidns.com/dns-query`
-- 默认兜底 DNS：`https://cloudflare-dns.com/dns-query`
+- 国内 DNS：阿里 DNS（HTTP/3 + QUIC）+ 腾讯 DNSPod DoH
+- 国外/默认 DNS：Cloudflare DoH + Google DoH
 - 每天北京时间 **06:15** 左右自动更新
+
+当前 latest release 使用的上游如下：
+
+- `CN_DNS`: `h3://dns.alidns.com/dns-query quic://dns.alidns.com https://doh.pub/dns-query`
+- `THE_DNS`:
+  - `https://cloudflare-dns.com/dns-query`
+  - `https://dns.google/dns-query`
 
 ## 直接使用
 
@@ -95,14 +102,15 @@ systemctl restart AdGuardHome
 
 ```text
 https://cloudflare-dns.com/dns-query
-[/cn/]https://dns.alidns.com/dns-query
-[/example.com/]https://dns.alidns.com/dns-query
+https://dns.google/dns-query
+[/cn/]h3://dns.alidns.com/dns-query quic://dns.alidns.com https://doh.pub/dns-query
+[/example.com/]h3://dns.alidns.com/dns-query quic://dns.alidns.com https://doh.pub/dns-query
 ```
 
 含义：
 
-- 第一行是默认 DNS（`THE_DNS`）
-- `[/cn/]` 作为 `.cn` 兜底规则
+- 前两行是默认 DNS（`THE_DNS`），这里用的是 Cloudflare DoH 和 Google DoH
+- `[/cn/]` 作为 `.cn` 兜底规则，这里用的是阿里 DNS（HTTP/3 + QUIC）和 DNSPod DoH
 - 其余中国域名逐条写入分流规则
 - 已存在 `[/cn/]` 时，不再重复写入 `.cn` 子域名规则
 
