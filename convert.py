@@ -64,9 +64,13 @@ def merge_domains(cn_exact, cn_suffix, additional_exact, additional_suffix):
     seen = set()
     domains = []
     has_cn_catchall = 'cn' in cn_suffix
+    skipped_cn = 0
 
     for domain in sorted(cn_exact | cn_suffix):
         if domain == 'cn':
+            continue
+        if has_cn_catchall and domain.endswith('.cn'):
+            skipped_cn += 1
             continue
         if domain not in seen:
             seen.add(domain)
@@ -75,6 +79,9 @@ def merge_domains(cn_exact, cn_suffix, additional_exact, additional_suffix):
     added_count = 0
     skipped_duplicate = 0
     for domain in sorted(additional_exact | additional_suffix):
+        if has_cn_catchall and domain.endswith('.cn'):
+            skipped_cn += 1
+            continue
         if domain in seen:
             skipped_duplicate += 1
             continue
@@ -82,7 +89,7 @@ def merge_domains(cn_exact, cn_suffix, additional_exact, additional_suffix):
         domains.append(domain)
         added_count += 1
 
-    return sorted(domains), added_count, skipped_duplicate, has_cn_catchall
+    return sorted(domains), added_count, skipped_duplicate, skipped_cn, has_cn_catchall
 
 
 def write_output(output_file, domains, cn_dns, the_dns, has_cn_catchall):
@@ -121,7 +128,7 @@ def main():
         min_rules=MIN_RULE_COUNTS[ADDITIONAL_LIST_FILE],
     )
 
-    merged_domains, added_count, skipped_duplicate, has_cn_catchall = merge_domains(
+    merged_domains, added_count, skipped_duplicate, skipped_cn, has_cn_catchall = merge_domains(
         cn_exact, cn_suffix, additional_exact, additional_suffix,
     )
 
@@ -141,6 +148,7 @@ def main():
         f'CN rules: {cn_total}, '
         f'additional rules: {additional_total}, '
         f'additional skipped duplicates: {skipped_duplicate}, '
+        f'skipped cn: {skipped_cn}, '
         f'additional added: {added_count}, '
         f'merged rules: {len(merged_domains)}, '
         f'output lines: {output_lines}'
