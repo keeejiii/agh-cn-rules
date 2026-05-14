@@ -82,7 +82,7 @@ jobs:
           if [ -f "converted/cn-rules.txt" ]; then
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git add converted/cn-rules.txt
+            git add -f converted/cn-rules.txt
             if git commit -m "Auto-update DNS rules" -a; then
               echo "changed=true" >> "$GITHUB_OUTPUT"
               git push
