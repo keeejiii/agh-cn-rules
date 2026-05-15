@@ -126,7 +126,7 @@ jobs:
           Auto-generated China DNS rules for AdGuard Home.
 
           - File: `cn-rules.txt`
-          - Download: `https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt`
+          - Download: `https://github.com/keeejiii/AdGuard-Home-CN-Rules/releases/latest/download/cn-rules.txt`
           - Use with: `upstream_dns_file: /path/to/cn-rules.txt`
 
           Current upstreams:
@@ -145,7 +145,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: AdGuard Home China DNS Rules
+          name: AdGuard-Home-CN-Rules
           body_path: release-notes.md
           files: converted/cn-rules.txt
           overwrite_files: true

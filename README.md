@@ -1,6 +1,6 @@
-# AdGuard Home China DNS Rules
+# AdGuard-Home-CN-Rules
 
-[![Generate DNS Rules](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml/badge.svg)](https://github.com/keeejiii/agh-cn-rules/actions/workflows/update-rules.yml)
+[![Generate DNS Rules](https://github.com/keeejiii/AdGuard-Home-CN-Rules/actions/workflows/update-rules.yml/badge.svg)](https://github.com/keeejiii/AdGuard-Home-CN-Rules/actions/workflows/update-rules.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 用于 AdGuard Home `upstream_dns_file` 的中国域名分流规则集。
@@ -24,24 +24,24 @@
 
 ```bash
 mkdir -p /opt/AdGuardHome
-curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt -o /opt/AdGuardHome/cn-rules.txt
+curl -L https://github.com/keeejiii/AdGuard-Home-CN-Rules/releases/latest/download/cn-rules.txt -o /opt/AdGuardHome/cn-rules.txt
 ```
 
-直链：<https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt>
+直链：<https://github.com/keeejiii/AdGuard-Home-CN-Rules/releases/latest/download/cn-rules.txt>
 
 ### 2. 配置定时拉取（cron 示例）
 
 ```bash
 
-cat >/usr/local/bin/update-agh-cn-rules.sh <<'EOF'
+cat >/usr/local/bin/update-adguard-home-cn-rules.sh <<'EOF'
 #!/bin/sh
-curl -L https://github.com/keeejiii/agh-cn-rules/releases/latest/download/cn-rules.txt -o /tmp/cn-rules.txt.new || exit 1
+curl -L https://github.com/keeejiii/AdGuard-Home-CN-Rules/releases/latest/download/cn-rules.txt -o /tmp/cn-rules.txt.new || exit 1
 cmp -s /tmp/cn-rules.txt.new /opt/AdGuardHome/cn-rules.txt && rm -f /tmp/cn-rules.txt.new && exit 0
 mv /tmp/cn-rules.txt.new /opt/AdGuardHome/cn-rules.txt
 systemctl restart AdGuardHome
 EOF
-chmod +x /usr/local/bin/update-agh-cn-rules.sh
-(crontab -l 2>/dev/null; echo '30 6 * * * /usr/local/bin/update-agh-cn-rules.sh >/dev/null 2>&1') | crontab -
+chmod +x /usr/local/bin/update-adguard-home-cn-rules.sh
+(crontab -l 2>/dev/null; echo '30 6 * * * /usr/local/bin/update-adguard-home-cn-rules.sh >/dev/null 2>&1') | crontab -
 ```
 
 - 每天 06:30 自动拉取
